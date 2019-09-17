@@ -113,52 +113,6 @@ public class DCInvestigatorPlugin extends AbstractPlugin implements SimpleWatPlu
         }else{
             return false;
         }
-        //read in weights from dir/shared/binweights_by_lifecycle.txt
-        String weightFile = dir + "/shared/binweights_by_lifecycle.txt";
-        String line = "";
-        double prob;
-        double startProb = 0.0;
-        double endProb = 0.0;
-        List<Double> weights = new ArrayList<>();
-        BufferedReader br = null;
-        try {
-            br = new BufferedReader(new FileReader(weightFile));
-            startProb = Double.parseDouble(br.readLine().split(",")[1]);//first value is the start of the first bin
-            String[] tmp = null;
-            while ((line = br.readLine()) != null) {
-                tmp = line.split(",");
-                if(tmp.length==0){continue;}
-                if(tmp[0].equals("above")){
-                    endProb = Double.parseDouble(tmp[1]);
-                }else{
-                    prob = Double.parseDouble(tmp[1]);
-                    weights.add(prob);
-                }
-            }
-            fr.addMessage("Weights found");
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            fr.addMessage("Weights not found, please place the binweights_by_lifecycle.txt file in the shared directory of the WAT project.");
-        } catch (IOException e) {
-            e.printStackTrace();
-            fr.addMessage("Weights not accessable.");               
-        } finally {
-            if (br != null) {
-                 try {
-                         br.close();
-                 } catch (IOException e) {
-                         e.printStackTrace();
-                 }
-            }
-        }
-        if(br!=null){
-            try {
-                    br.close();
-            } catch (IOException e) {
-                    e.printStackTrace();
-            }   
-        }
-        if(weights.size()==0)return false;
         //process the bin sizes into weights. by dividing by total number of events per bin
         //get the simulation 
         List<ManagerProxy> managerProxyListForType = proj.getManagerProxyListForType(FrmSimulation.class);
@@ -166,7 +120,7 @@ public class DCInvestigatorPlugin extends AbstractPlugin implements SimpleWatPlu
         FrmSimulation frm = null;
         OutputTracker ot = null;
         for(ManagerProxy mp : managerProxyListForType){
-            if(mp.getName().equals(_simulationName)){
+            if(mp.getName().equals(_settings.getSimulation())){
                 //do stuff
                 m = mp.getManager();
                 frm = (FrmSimulation)m;//get the FRM simulation object
@@ -272,7 +226,7 @@ public class DCInvestigatorPlugin extends AbstractPlugin implements SimpleWatPlu
                 }
             }
         }else{
-            fr.addMessage("A WAT simulation named "+_simulationName+" was not found, please check your simulation names, and fix the \\FrequencyFixer\\FrequencyFixer.props file to contain the name of the simulation you wish to destratify.");
+            fr.addMessage("A WAT simulation named "+_settings.getSimulation()+" was not found, please check your simulation names, and fix the \\FrequencyFixer\\FrequencyFixer.props file to contain the name of the simulation you wish to destratify.");
             return false;
         }
         return true;
@@ -569,8 +523,8 @@ public class DCInvestigatorPlugin extends AbstractPlugin implements SimpleWatPlu
         int real = fullCurve[0].getRealizationNumber();
         int numEventsPerReal =0;
         List<Integer> proxys = Arrays.asList(62, 87, 125, 175, 225, 262, 287, 337, 375, 425, 475, 512, 550, 612, 637, 675, 725, 775, 825, 862, 887, 925, 962, 999);
-        double[] maxs = new double[_XOrds.size()];
-        double[] mins = new double[_XOrds.size()];
+        double[] maxs = new double[_settings.getOrdinatesForConvergence().size()];
+        double[] mins = new double[_settings.getOrdinatesForConvergence().size()];
         for(ValueBinIncrementalWeight event: fullCurve){
             if(real==event.getRealizationNumber()){
                 numEventsPerReal++;
@@ -583,7 +537,7 @@ public class DCInvestigatorPlugin extends AbstractPlugin implements SimpleWatPlu
         
         //sort by value
         ValueBinIncrementalWeight.setSort(true);
-        for(int i = 0; i<_XOrds.size();i++){
+        for(int i = 0; i<_settings.getOrdinatesForConvergence().size();i++){
             maxs[i] = Double.MIN_VALUE;
             mins[i] = Double.MAX_VALUE;
         }
@@ -595,7 +549,7 @@ public class DCInvestigatorPlugin extends AbstractPlugin implements SimpleWatPlu
                 currentEvent++;
             }else{
                 Arrays.sort(realizations.get(real));//sort by value - per real//ascending..
-                for(int i = 0; i<_XOrds.size();i++){
+                for(int i = 0; i<_settings.getOrdinatesForConvergence().size();i++){
                     if(realizations.get(real)[proxys.get(i)].getValue()>maxs[i]){maxs[i] = realizations.get(real)[proxys.get(i)].getValue();}
                     if(realizations.get(real)[proxys.get(i)].getValue()<mins[i]){mins[i] = realizations.get(real)[proxys.get(i)].getValue();}
                 }
@@ -643,7 +597,7 @@ public class DCInvestigatorPlugin extends AbstractPlugin implements SimpleWatPlu
         int bincount = (int)Math.ceil(Math.pow(2.0*realizations.size(),1/3));
         if(bincount<20){bincount=20;}
         
-        for(Double d: _XOrds){
+        for(Double d: _settings.getOrdinatesForConvergence()){
             int failureCount=0;//          
             verticalSlices.add(new HistDist(bincount,mins[ordcount],maxs[ordcount]));//how to intelligently get min and max for this prob range?
             //frm.addMessage("Probability: " + d + " with bin Max: " + maxs[ordcount] + " and Min: " + mins[ordcount]);
@@ -697,21 +651,23 @@ public class DCInvestigatorPlugin extends AbstractPlugin implements SimpleWatPlu
             }
             ordcount++;  
         }
-        double[] xordinates = new double[_XOrds.size()];
-        for(int i = 0; i<_XOrds.size();i++){
-            xordinates[i] = _XOrds.get(i);
+        double[] xordinates = new double[_settings.getOrdinatesForConvergence().size()];
+        for(int i = 0; i<_settings.getOrdinatesForConvergence().size();i++){
+            xordinates[i] = _settings.getOrdinatesForConvergence().get(i);
         }
-                //SAVE FULL PDCs
-            
-        for(double o : _CI_Vals){
-            double[] vals = new double[_XOrds.size()];
+                //SAVE FULL PDCs at confidence interval .05 and .95... should be a setting?
+        ArrayList<Double> ci_vals = new ArrayList<>();
+        ci_vals.add(.05);
+        ci_vals.add(.95);
+        for(double o : ci_vals){
+            double[] vals = new double[_settings.getOrdinatesForConvergence().size()];
             for(int i= 0; i<verticalSlices.size();i++){
                 vals[i] = verticalSlices.get(i).invCDF(o);
             }
             PairedDataContainer freqPdc = vv.getFullFrequencyPairedData();
 //            PairedDataContainer thinPdc = new PairedDataContainer();
 //            freqPdc.clone(thinPdc);
-            freqPdc.numberOrdinates = _XOrds.size();
+            freqPdc.numberOrdinates = _settings.getOrdinatesForConvergence().size();
             freqPdc.numberCurves = 1;
             freqPdc.xOrdinates = xordinates;
             freqPdc.yOrdinates = new double[][]{vals};
