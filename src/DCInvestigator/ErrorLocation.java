@@ -13,25 +13,25 @@ import java.util.Objects;
  */
 class ErrorLocation {
     private String _modelAlt;
-    private Integer _lifecycleNumber;
-    private String _lcOrReal;
+    private Integer _index;
+    private ErrorEnum _lcOrReal;
     String getMAlt(){
         return _modelAlt;
     }
-    Integer getLifeCycleNumber(){
-        return _lifecycleNumber;
+    Integer getIndex(){
+        return _index;
     }
-    public ErrorLocation(String modelAlt, Integer lifecycle, boolean isRealization){
+    public ErrorLocation(String modelAlt, Integer index, boolean isRealization){
         _modelAlt = modelAlt;
-        _lifecycleNumber = lifecycle;
+        _index = index;
         if(isRealization){
-            _lcOrReal = "Realization";
+            _lcOrReal = ErrorEnum.Realization;
         }else{
-            _lcOrReal = "LifeCycle";
+            _lcOrReal = ErrorEnum.LifeCycle;
         }
     }
     public boolean IsRealizationError(){
-        if(_lcOrReal.equals("Realization")){
+        if(_lcOrReal.equals(ErrorEnum.Realization)){
             return true;
         }else{
             return false;
@@ -42,7 +42,7 @@ class ErrorLocation {
         if(o.getClass()==this.getClass()){
             ErrorLocation lcm = (ErrorLocation)o;
             if(this.getMAlt().equals(lcm.getMAlt())){
-                if(Objects.equals(this.getLifeCycleNumber(), lcm.getLifeCycleNumber())){
+                if(Objects.equals(this.getIndex(), lcm.getIndex())){
                     if(this._lcOrReal.equals(lcm._lcOrReal)){
                         return true;
                     }else{
@@ -59,10 +59,10 @@ class ErrorLocation {
         }
     }
     public String Write(){
-        if(_lcOrReal.equals("LifeCycle")){
-            return "Rerun " + _lcOrReal + " " + getLifeCycleNumber() + " because: ";
+        if(_lcOrReal.equals(ErrorEnum.LifeCycle)){
+            return "Rerun " + _lcOrReal.toString() + " " + getIndex() + " because: ";
         }else{
-            return "Investigate " + _lcOrReal + " " + getLifeCycleNumber() + " because: ";
+            return "Investigate " + _lcOrReal.toString() + " " + getIndex() + " because: ";
         }
     }
 }

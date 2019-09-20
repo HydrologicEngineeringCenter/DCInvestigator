@@ -50,12 +50,12 @@ class ErrorReport {
         ArrayList<Integer> lcs = new ArrayList<>();
         for(ErrorLocation el : LCMALT){
             if(el.IsRealizationError()){
-                if(!reals.contains(el.getLifeCycleNumber())){
-                    reals.add(el.getLifeCycleNumber());
+                if(!reals.contains(el.getIndex())){
+                    reals.add(el.getIndex());
                 }
             }else{
-                if(!lcs.contains(el.getLifeCycleNumber())){
-                    lcs.add(el.getLifeCycleNumber());
+                if(!lcs.contains(el.getIndex())){
+                    lcs.add(el.getIndex());
                 }
             }
         }
