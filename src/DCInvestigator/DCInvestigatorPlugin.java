@@ -160,6 +160,7 @@ public class DCInvestigatorPlugin extends AbstractPlugin implements SimpleWatPlu
                 }
             }
             masterList.WriteReport(fr);
+            masterList.WriteLifecycleReport(fr);
         }else{
             fr.addMessage("A WAT simulation named "+_settings.getSimulation()+" was not found, please check your simulation names, and fix the \\FrequencyFixer\\FrequencyFixer.props file to contain the name of the simulation you wish to destratify.");
             return false;

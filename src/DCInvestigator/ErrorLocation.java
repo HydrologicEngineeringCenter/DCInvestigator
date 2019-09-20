@@ -30,6 +30,13 @@ class ErrorLocation {
             _lcOrReal = "LifeCycle";
         }
     }
+    public boolean IsRealizationError(){
+        if(_lcOrReal.equals("Realization")){
+            return true;
+        }else{
+            return false;
+        }
+    }    
     @Override
     public boolean equals(Object o) {
         if(o.getClass()==this.getClass()){
