@@ -63,7 +63,7 @@ class ErrorReport {
             fr.addMessage(stringifyArray(lcs,"Rerun the following " + lcs.size() + " lifecycles:"));
         }
         if(reals.size()>0){
-            fr.addMessage(stringifyArray(lcs,"Investigate the following " + reals.size() + " realizations, they may be missing additional lifecycles:"));
+            fr.addMessage(stringifyArray(reals,"Investigate the following " + reals.size() + " realizations, they may be missing additional lifecycles:"));
         }
     }
     private String stringifyArray(ArrayList<Integer> array, String header){
@@ -72,6 +72,6 @@ class ErrorReport {
         for(int i = 1; i<array.size();i++){
             csv += "," + Integer.toString(array.get(i));
         }
-        return header.concat("\\rn").concat(csv);
+        return header.concat("\r\n").concat(csv);
     }
 }
