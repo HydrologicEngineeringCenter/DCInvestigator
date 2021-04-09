@@ -3,7 +3,6 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package DCInvestigator;
 import com.rma.client.Browser;
 import com.rma.client.BrowserAction;
 import com.rma.io.DssFileManagerImpl;

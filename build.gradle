@@ -1,0 +1,67 @@
+plugins {
+    id 'java'
+    id 'maven-publish'
+    id 'distribution'
+}
+
+//DEPENDENCY MANAGEMENT--
+repositories {
+    jcenter()
+    flatDir{
+        dirs ("lib")
+    }
+}
+
+dependencies {
+    implementation "org.junit.jupiter:junit-jupiter:5.4.2"
+    implementation name:"commons-collections-2.1"
+    implementation name: "commons-lang-2.5"
+    implementation name: "hec"
+    implementation name: "hecnf"
+    implementation name: "hecnfPlugin"
+    implementation name: "jdom-1.0"
+    implementation name: "rma"
+    implementation name: "rmadev"
+    implementation name: "wat"
+    implementation name: "watModel"
+}
+
+//TESTING--
+test{
+    useJUnitPlatform()
+    testLogging{
+        test {
+            testLogging {
+                events "PASSED","FAILED", "SKIPPED"
+            }
+        }
+    }
+}
+tasks.withType(Test) {
+    useJUnitPlatform()
+    jvmArgs "--enable-preview"
+}
+
+//PUBLISHING--
+group = "mil.army.usace.hec"
+version "1.0"
+
+distributions {
+    main {
+        distributionBaseName = 'DCInvestigatorPlugin'
+        contents {
+            from 'src/WATPluginMarketplaceConfig'
+            from 'build/libs'
+        }
+    }
+}
+
+jar {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+    manifest {
+        attributes "WatPluginMainClass": "DCInvestigatorPlugin"
+    }
+}
+
+
