@@ -19,16 +19,8 @@ import java.util.ArrayList;
  */
 public class DCInvestigatorSettings {
     private String _SimulationName;//the simulation the user wishes to check on
-    private ArrayList<Double> _Convergence_Ordinates;
-    private boolean _vertical; //vertical or horizontal criteria.
     public String getSimulation(){
         return _SimulationName;
-    }
-    public ArrayList<Double> getOrdinatesForConvergence(){
-        return _Convergence_Ordinates;
-    }
-    public boolean isVerticalSlices(){
-        return _vertical;
     }
     public DCInvestigatorSettings(String propertiesPath){
         //read in the properties file?
@@ -48,14 +40,6 @@ public class DCInvestigatorSettings {
                     if(tmp.length==0){continue;}
                     if(tmp[0].equals("SimulationName")){
                         _SimulationName = tmp[1];
-                    }else if(tmp[0].equals("XOrds")){
-                        _Convergence_Ordinates = new ArrayList<>();
-                        for(String s: tmp){
-                            if(s.equals("XOrds")){continue;}
-                            _Convergence_Ordinates.add(1-Double.parseDouble(s));
-                            fr.addMessage(s); 
-                        }
-                        fr.addMessage("There are " + _Convergence_Ordinates.size() + " ordinates for testing convergence.");                 
                     }
                 }
             } catch (FileNotFoundException e) {
@@ -75,10 +59,5 @@ public class DCInvestigatorSettings {
             fr.addMessage("No properties file found at " + propertiesPath);
         }
 
-    }
-    public DCInvestigatorSettings(String simName, ArrayList<Double> ords, boolean vert){
-        _SimulationName = simName;
-        _Convergence_Ordinates = ords;
-        _vertical = vert;
     }
 }
