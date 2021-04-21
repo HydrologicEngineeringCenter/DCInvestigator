@@ -24,14 +24,11 @@ public class DCInvestigatorSettings {
     }
     public DCInvestigatorSettings(String propertiesPath){
         //read in the properties file?
-        WatFrame fr = null;
-        fr = hec2.wat.WAT.getWatFrame();
         String propertiesFile = propertiesPath;
         String propertyLine = "";
         BufferedReader brp = null;
         File pf = new File(propertiesFile);
         if(pf.exists()){
-            fr.addMessage("Properties found");
             try {
                 brp = new BufferedReader(new FileReader(propertiesFile));
                 String[] tmp = null;
@@ -55,9 +52,6 @@ public class DCInvestigatorSettings {
                      }
                 }
             }            
-        }else{
-            fr.addMessage("No properties file found at " + propertiesPath);
         }
-
     }
 }
