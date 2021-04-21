@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class DCInvestigatorSettingsTest {
     String currentDirectory = System.getProperty("user.dir");
-    String propertiesPath = currentDirectory + "\\ConfidenceBuilder.props";
+    String propertiesPath = currentDirectory + "\\DCInvestigator.props";
     DCInvestigatorSettings settings = new DCInvestigatorSettings(propertiesPath);
 
     @Test
