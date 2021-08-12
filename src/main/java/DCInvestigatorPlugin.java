@@ -5,11 +5,9 @@
  */
 import com.rma.client.Browser;
 import com.rma.client.BrowserAction;
-import com.rma.io.DssFileManagerImpl;
 import com.rma.model.Manager;
 import com.rma.model.ManagerProxy;
 import com.rma.model.Project;
-import hec.heclib.dss.DSSPathname;
 import hec.io.PairedDataContainer;
 import hec.model.OutputVariable;
 import hec2.plugin.AbstractPlugin;
@@ -20,24 +18,14 @@ import hec2.wat.model.tracking.OutputTracker;
 import hec2.wat.model.tracking.OutputVariableImpl;
 import hec2.wat.plugin.SimpleWatPlugin;
 import hec2.wat.plugin.WatPluginManager;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.Action;
 import javax.swing.Icon;
-import org.apache.commons.lang.ArrayUtils;
+
 import rma.swing.RmaImage;
-import rma.util.RMAIO;
+
 /**
  * The purpose of this plugin is to do the following processes
  * 1. Check to see if each Output Variable exists
@@ -185,14 +173,29 @@ public class DCInvestigatorPlugin extends AbstractPlugin implements SimpleWatPlu
             //numCurves = numLifecyclesPerReal;
         }
         int prevLifecycles = real*numLifecyclesPerReal;
+
+        //Extracts realization number from dss record
+        String initialSim= outPdc.toString();
+        String[] simParse = initialSim.split("/",0);
+        String currentRealization = simParse[6].substring(2,8);
+        Integer curRealization = Integer.parseInt(currentRealization);
+
+        //Stores realization number in arraylist
+        ArrayList<Integer> realization = new ArrayList<Integer>();
+        realization.add(curRealization);
+
+        //get start lifecycle number
+        int startLifecycle = realization.get(0)*numLifecyclesPerReal;
+
+
         for (int curve = 0; curve < numCurves; curve++) {
             double[] yOrd = outPdc.yOrdinates[curve];//this is the number of lifecycles
             for (int ord = 0; ord < numOrdinates; ord++) {
                 if(yOrd[ord]==Double.NaN){
                     //bad
-                    errors.AddErrorReport("Variable " + vv.getName() + " has a NaN at realization " + real + " lifecycle " + (prevLifecycles + curve + 1) + " event " + ord,new ErrorLocation(modelAlt.getName(), (prevLifecycles + curve + 1), false));
+                    errors.AddErrorReport("Variable " + vv.getName() + " has a NaN at realization " + (curRealization + 1) + " lifecycle " + (startLifecycle + prevLifecycles + curve + 1) + " event " + ord,new ErrorLocation(modelAlt.getName(), (startLifecycle + prevLifecycles + curve + 1), false));
                 }else if(yOrd[ord]<0){
-                    errors.AddErrorReport("Variable " + vv.getName() + " has a value less than zero at realization " + real + " lifecycle " + (prevLifecycles + curve + 1) + " event " + ord,new ErrorLocation(modelAlt.getName(), (prevLifecycles + curve + 1), false));
+                    errors.AddErrorReport("Variable " + vv.getName() + " has a value less than zero at realization " + (curRealization +1) + " lifecycle " + (startLifecycle + prevLifecycles + curve + 1) + " event " + ord,new ErrorLocation(modelAlt.getName(), (startLifecycle + prevLifecycles + curve + 1), false));
                 }
                 else{
                     //good
