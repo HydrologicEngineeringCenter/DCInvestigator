@@ -5,11 +5,9 @@
  */
 import com.rma.client.Browser;
 import com.rma.client.BrowserAction;
-import com.rma.io.DssFileManagerImpl;
 import com.rma.model.Manager;
 import com.rma.model.ManagerProxy;
 import com.rma.model.Project;
-import hec.heclib.dss.DSSPathname;
 import hec.io.PairedDataContainer;
 import hec.model.OutputVariable;
 import hec2.plugin.AbstractPlugin;
@@ -20,24 +18,14 @@ import hec2.wat.model.tracking.OutputTracker;
 import hec2.wat.model.tracking.OutputVariableImpl;
 import hec2.wat.plugin.SimpleWatPlugin;
 import hec2.wat.plugin.WatPluginManager;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.Action;
 import javax.swing.Icon;
-import org.apache.commons.lang.ArrayUtils;
+
 import rma.swing.RmaImage;
-import rma.util.RMAIO;
+
 /**
  * The purpose of this plugin is to do the following processes
  * 1. Check to see if each Output Variable exists
@@ -136,6 +124,7 @@ public class DCInvestigatorPlugin extends AbstractPlugin implements SimpleWatPlu
             //cycle through all output variables and check to ensure that the data exists.
             List<List<OutputVariableImpl>> varListList = ot.getVarListList();
             List<ModelAlternative> models = frm.getAllModelAlternativeList();//frm is not null because ot was retrieved from it.
+
             ErrorReport masterList = new ErrorReport();
             for(int i = 0;i<varListList.size();i++){
                 ModelAlternative modelAlt = models.get(i);//varlistlist is an array of output variables stored by model alternative.
@@ -146,22 +135,39 @@ public class DCInvestigatorPlugin extends AbstractPlugin implements SimpleWatPlu
                         OutputVariableImpl v = variablesForModel.get(j);
                         PairedDataContainer pdc = v.getPairedDataContainer();
                         List<PairedDataContainer> pdcList = v.getAllPairedDataList();
+                        ArrayList<Integer> totalReal = new ArrayList<>();
+                        int propReal = Integer.parseInt(_settings.getTotalRealizations());
                         int realization = 0;
-                        for(PairedDataContainer pdci : pdcList){//check the validity of the output
+                        for(PairedDataContainer pdci : pdcList){
+                            //check the validity of the output
+
+                            //Extracts realization number from dss record
+                            String initialSim= pdci.toString();
+                            String[] simParse = initialSim.split("/",0);
+                            String realCollection = simParse[6].substring(2,8);
+                            Integer curRealization = Integer.parseInt(realCollection);
+
+                            //Stores realization number in arraylist
+                            totalReal.add(curRealization);
+
                             ErrorReport err = checkValidityofOutputVariable(v,pdci,frm,realization,modelAlt);
                             if(err.HasErrors()){
                                 masterList.BulkAdd(err);
                             }
                             realization++;
-                            
                         }
+                        if(totalReal.size() != propReal) {
+                            fr.addMessage("Number of computed Realizations, " + totalReal.size() + ", is not equal to your set realizations, " + propReal + ", for " + v + ". " +
+                                    "Review your simulation .dss file or your properties file");
+                        }
+
                     }
                 }
             }
             masterList.WriteReport(fr);
             masterList.WriteLifecycleReport(fr);
         }else{
-            fr.addMessage("A WAT simulation named "+_settings.getSimulation()+" was not found, please check your simulation names, and fix the \\FrequencyFixer\\FrequencyFixer.props file to contain the name of the simulation you wish to destratify.");
+            fr.addMessage("A WAT simulation named "+_settings.getSimulation()+" was not found, please check your simulation names, and fix the \\DCInvestigator\\DCInvestigator.props file to contain the name of the simulation you wish to destratify.");
             return false;
         }
         return true;
@@ -185,14 +191,23 @@ public class DCInvestigatorPlugin extends AbstractPlugin implements SimpleWatPlu
             //numCurves = numLifecyclesPerReal;
         }
         int prevLifecycles = real*numLifecyclesPerReal;
+
+        //Extracts realization number from dss record
+        String initialSim= outPdc.toString();
+        String[] simParse = initialSim.split("/",0);
+        String realCollection = simParse[6].substring(2,8);
+
         for (int curve = 0; curve < numCurves; curve++) {
             double[] yOrd = outPdc.yOrdinates[curve];//this is the number of lifecycles
+            String lab = outPdc.labels[curve];
+            String[] lifecycleParse = lab.split(" ", 2);
+            Integer lifecycle = Integer.parseInt(lifecycleParse[1]);
             for (int ord = 0; ord < numOrdinates; ord++) {
-                if(yOrd[ord]==Double.NaN){
+                if(yOrd[ord]==Double.NaN || yOrd[ord]==0){
                     //bad
-                    errors.AddErrorReport("Variable " + vv.getName() + " has a NaN at realization " + real + " lifecycle " + (prevLifecycles + curve + 1) + " event " + ord,new ErrorLocation(modelAlt.getName(), (prevLifecycles + curve + 1), false));
+                    errors.AddErrorReport("Variable " + vv.getName() + " has a NaN at realization " + (realCollection) + " " + (lab) + " event " + (ord +1),new ErrorLocation(modelAlt.getName(), lifecycle, false));
                 }else if(yOrd[ord]<0){
-                    errors.AddErrorReport("Variable " + vv.getName() + " has a value less than zero at realization " + real + " lifecycle " + (prevLifecycles + curve + 1) + " event " + ord,new ErrorLocation(modelAlt.getName(), (prevLifecycles + curve + 1), false));
+                    errors.AddErrorReport("Variable " + vv.getName() + " has a value less than zero at realization " + (realCollection) + " " + (lab) + " event " + (ord +1),new ErrorLocation(modelAlt.getName(), lifecycle, false));
                 }
                 else{
                     //good

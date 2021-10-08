@@ -19,9 +19,15 @@ import java.util.ArrayList;
  */
 public class DCInvestigatorSettings {
     private String _SimulationName;//the simulation the user wishes to check on
+    private String _TotalRealizations;
+
     public String getSimulation(){
         return _SimulationName;
     }
+    public String getTotalRealizations() {return _TotalRealizations; }
+
+
+
     public DCInvestigatorSettings(String propertiesPath){
         //read in the properties file?
         String propertiesFile = propertiesPath;
@@ -37,6 +43,9 @@ public class DCInvestigatorSettings {
                     if(tmp.length==0){continue;}
                     if(tmp[0].equals("SimulationName")){
                         _SimulationName = tmp[1];
+                    }
+                    if(tmp[0].equals("TotalRealizations")){
+                        _TotalRealizations = tmp[1];
                     }
                 }
             } catch (FileNotFoundException e) {

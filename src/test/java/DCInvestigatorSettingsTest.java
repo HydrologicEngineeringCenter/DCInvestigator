@@ -12,4 +12,10 @@ class DCInvestigatorSettingsTest {
         String actual = settings.getSimulation();
         assertEquals("Validation", actual);
     }
+
+    @Test
+    void getTotalRealizations() {
+        String actual = settings.getTotalRealizations();
+        assertEquals("25", actual);
+    }
 }
