@@ -10,20 +10,25 @@ repositories {
     flatDir{
         dirs ("lib")
     }
+    maven {
+        url "https://www.hec.usace.army.mil/nexus/repository/maven-public/"
+    }
 }
 
 dependencies {
     implementation "org.junit.jupiter:junit-jupiter:5.4.2"
-    implementation name:"commons-collections-2.1"
-    implementation name: "commons-lang-2.5"
-    implementation name: "hec"
-    implementation name: "hecnf"
-    implementation name: "hecnfPlugin"
-    implementation name: "jdom-1.0"
-    implementation name: "rma"
-    implementation name: "rmadev"
-    implementation name: "wat"
-    implementation name: "watModel"
+    implementation 'org.apache.commons:commons-lang3:3.11'
+    implementation 'mil.army.usace.hec.wat:wat-hec-maps:dev-3.0.0.1856-20210504.234927-1@jar'
+    implementation 'mil.army.usace.hec.wat:wat-hec:dev-3.0.0.1855-20210504.180613-1@jar'
+    implementation 'mil.army.usace.hec.wat:wat-hecnf:dev-3.0.0.1855-20210504.180601-1@jar'
+    implementation 'mil.army.usace.hec.wat:wat-hecnf-pluginapi:dev-3.0.0.1855-20210504.180607-1@jar'
+    implementation 'org.jdom:jdom:1.1'
+    implementation 'mil.army.usace.hec.wat:wat-rma:dev-3.0.0.1855-20210504.180620-1@jar'
+    implementation 'mil.army.usace.hec.wat:wat-rmadev:dev-3.0.0.1855-20210504.180626-1@jar'
+    implementation 'mil.army.usace.hec.wat:wat:dev-3.0.0.1855-20210504.180549-1@jar'
+    implementation 'mil.army.usace.hec.wat:wat-model:dev-3.0.0.1855-20210504.180555-1@jar'
+    implementation 'mil.army.usace.hec:javaHeclib:7-HZ-win-x64@zip'
+    implementation 'org.apache.commons:commons-math3:3.5'
 }
 
 //TESTING--
