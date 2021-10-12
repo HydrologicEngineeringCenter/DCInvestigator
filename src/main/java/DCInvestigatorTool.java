@@ -66,5 +66,41 @@ public class DCInvestigatorTool {
         }
         return errorList;
     }
+    public static Set<Integer> GetBadEvents(String filePath, int lifecycle, int _lifecyclesPerRealization ){
+        PairedDataContainer pdc = new PairedDataContainer();
+        HecPairedData pairedData = new HecPairedData();
+        pairedData.setDSSFileName(filePath);
+
+        Set<Integer> badEvents = new HashSet<>();
+
+        int collectionMemberNumber;
+        int lifecycleIndex;
+        if(lifecycle%_lifecyclesPerRealization==0) {
+            collectionMemberNumber = lifecycle / _lifecyclesPerRealization - 1;
+            lifecycleIndex = 19;
+        }
+        else{
+            collectionMemberNumber = lifecycle/_lifecyclesPerRealization;
+            lifecycleIndex = lifecycle%_lifecyclesPerRealization-1;
+        }
+
+        Vector<String> pathnames = getOutputVariablePathnames(filePath);
+        for(String pathname: pathnames){
+            DSSPathname name = new DSSPathname(pathname);
+            if(Integer.valueOf(name.getCollectionSequence()) != collectionMemberNumber){
+                continue;
+            }
+            pdc.setFullName(pathname);
+            pairedData.read(pdc);
+            double[][]yOrds = pdc.getYOridnates();
+            for(int i = 0; i < yOrds[lifecycleIndex].length; i++){
+                if(yOrds[lifecycleIndex][i] < 0){
+                    badEvents.add(i+1);
+                }
+            }
+        }
+        return badEvents;
+
+    }
 
 }
