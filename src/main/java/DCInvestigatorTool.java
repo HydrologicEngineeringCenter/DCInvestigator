@@ -9,14 +9,6 @@ import java.util.Vector;
 
 
 public class DCInvestigatorTool {
-    String _filePath;
-    int _lifecyclesPerRealization;
-
-    public DCInvestigatorTool(String _filePath, int _lifecyclesPerRealization) {
-        this._filePath = _filePath;
-        this._lifecyclesPerRealization = _lifecyclesPerRealization;
-    }
-
     public static Vector<String> GetOutputVariablePathnames(String dssFileName) {
         String dssPartDvalue = "Output Variable";
         String pathWithWildChars = "/*/*/*/*" + dssPartDvalue + "*/*/*/";
