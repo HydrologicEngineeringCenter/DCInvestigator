@@ -41,31 +41,22 @@ public class DCInvestigatorScript {
         try {
             FileWriter myWriter = new FileWriter("C:\\Temp\\DCInvestigator.txt");
             //write all lifecycles with any missing data
-            myWriter.write("DCInvestigator Report for: " + filePathDSS);
-            myWriter.write("\n");
-            myWriter.write("The following lifecycles have missing data: ");
-            myWriter.write("\n");
-            myWriter.write(String.valueOf(badLifecycles));
-            myWriter.write("\n");
+            myWriter.write("DCInvestigator Report for: " + filePathDSS + "\n");
+            myWriter.write("The following lifecycles have missing data: " + "\n");
+            myWriter.write(String.valueOf(badLifecycles) + "\n");
             myWriter.write("The following list missing events for each lifecycle: ");
             //for each of those lifecycles, write which data is missing
             for (Integer eachLifecycle : badLifecycles) {
-                myWriter.write(String.valueOf(eachLifecycle));
-                myWriter.write(": ");
-                myWriter.write(String.valueOf(DCInvestigatorTool.GetBadEvents(filePathDSS, eachLifecycle, lifecyclesPerReal)));
-                myWriter.write("\n");
+                myWriter.write(String.valueOf(eachLifecycle) + ": ");
+                myWriter.write(String.valueOf(DCInvestigatorTool.GetBadEvents(filePathDSS, eachLifecycle, lifecyclesPerReal)) + "\n");
             }
             //write the lifecycles that need to be entirely reran
-            myWriter.write("The following lists lifecycles that ought be entirely reran: ");
-            myWriter.write("\n");
-            myWriter.write(String.valueOf(lifecycesFailed));
-            myWriter.write("\n");
-            myWriter.write("The following lists collections with missing data: ");
-            myWriter.write("\n");
+            myWriter.write("The following lists lifecycles that ought be entirely reran: " + "\n");
+            myWriter.write(String.valueOf(lifecycesFailed) + "\n");
+            myWriter.write("The following lists collections with missing data: " + "\n");
             //write the pathnames that contain errors
             for ( String path: badpathnames){
-                myWriter.write(path);
-                myWriter.write("\n");
+                myWriter.write(path + "\n");
             }
             myWriter.close();
         } catch (IOException e) {
