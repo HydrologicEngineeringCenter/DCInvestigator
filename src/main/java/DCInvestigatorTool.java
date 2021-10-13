@@ -1,5 +1,4 @@
 import hec.heclib.dss.DSSPathname;
-import hec.heclib.dss.HecDSSUtilities;
 import hec.heclib.dss.HecDataManager;
 import hec.heclib.dss.HecPairedData;
 import hec.io.PairedDataContainer;
@@ -18,7 +17,7 @@ public class DCInvestigatorTool {
         this._lifecyclesPerRealization = _lifecyclesPerRealization;
     }
 
-    public static Vector<String> getOutputVariablePathnames(String dssFileName) {
+    public static Vector<String> GetOutputVariablePathnames(String dssFileName) {
         String dssPartDvalue = "Output Variable";
         String pathWithWildChars = "/*/*/*/*" + dssPartDvalue + "*/*/*/";
         HecDataManager dssManager = new HecDataManager();
@@ -32,7 +31,7 @@ public class DCInvestigatorTool {
         PairedDataContainer pdc = new PairedDataContainer();
         HecPairedData pairedData = new HecPairedData();
         pairedData.setDSSFileName(filePath);
-        Vector<String> pathnames = getOutputVariablePathnames(filePath);
+        Vector<String> pathnames = GetOutputVariablePathnames(filePath);
         Set<Integer> errorList = new HashSet<>();
         for(String pathname: pathnames){
             pdc.setFullName(pathname);
@@ -66,7 +65,7 @@ public class DCInvestigatorTool {
         }
         return errorList;
     }
-    public static Set<Integer> GetBadEvents(String filePath, int lifecycle, int _lifecyclesPerRealization ){
+    public static Set<Integer> GetBadEvents(String filePath, int lifecycle, int lifecyclesPerRealization ){
         PairedDataContainer pdc = new PairedDataContainer();
         HecPairedData pairedData = new HecPairedData();
         pairedData.setDSSFileName(filePath);
@@ -75,16 +74,16 @@ public class DCInvestigatorTool {
 
         int collectionMemberNumber;
         int lifecycleIndex;
-        if(lifecycle%_lifecyclesPerRealization==0) {
-            collectionMemberNumber = lifecycle / _lifecyclesPerRealization - 1;
+        if(lifecycle%lifecyclesPerRealization==0) {
+            collectionMemberNumber = lifecycle / lifecyclesPerRealization - 1;
             lifecycleIndex = 19;
         }
         else{
-            collectionMemberNumber = lifecycle/_lifecyclesPerRealization;
-            lifecycleIndex = lifecycle%_lifecyclesPerRealization-1;
+            collectionMemberNumber = lifecycle/lifecyclesPerRealization;
+            lifecycleIndex = lifecycle%lifecyclesPerRealization-1;
         }
 
-        Vector<String> pathnames = getOutputVariablePathnames(filePath);
+        Vector<String> pathnames = GetOutputVariablePathnames(filePath);
         for(String pathname: pathnames){
             DSSPathname name = new DSSPathname(pathname);
             if(Integer.valueOf(name.getCollectionSequence()) != collectionMemberNumber){
@@ -93,14 +92,57 @@ public class DCInvestigatorTool {
             pdc.setFullName(pathname);
             pairedData.read(pdc);
             double[][]yOrds = pdc.getYOridnates();
-            for(int i = 0; i < yOrds[lifecycleIndex].length; i++){
-                if(yOrds[lifecycleIndex][i] < 0){
-                    badEvents.add(i+1);
+            if(pdc.getNumberCurves() <= lifecycleIndex){
+                for(int i = 1; i<= pdc.getNumberOrdinates(); i++ ){
+                    badEvents.add(i);
                 }
             }
+            else{
+                for(int i = 0; i < yOrds[lifecycleIndex].length; i++){
+                    if(yOrds[lifecycleIndex][i] < 0){
+                        badEvents.add(i+1);
+                    }
+                }
+            }
+
         }
         return badEvents;
 
     }
+    public static Vector<String> GetIncompleteCollections(String filePath, int lifecyclesPerReal){
+        Vector<String> incompleteRealizations = new Vector<>();
+        Vector<String> OutputVariablePathnames = GetOutputVariablePathnames(filePath);
+        PairedDataContainer mypdc = new PairedDataContainer();
+        HecPairedData pairedData = new HecPairedData();
+        pairedData.setDSSFileName(filePath);
 
+
+        for(String pathname: OutputVariablePathnames){
+            Boolean realizationIsIncomplete = false;
+            mypdc.setFullName(pathname);
+            pairedData.read(mypdc);
+            if(mypdc.getNumberCurves() != lifecyclesPerReal){
+                incompleteRealizations.add(pathname);
+                continue;
+            }
+            double[][] yOrds = mypdc.getYOridnates();
+            for(double[] lifecycle: yOrds){
+                int failedEventCount = 0;
+                for(double event: lifecycle){
+                    if(event < 0 ){
+                        failedEventCount++;
+                    }
+                    if (failedEventCount > 4){
+                        incompleteRealizations.add(pathname);
+                        realizationIsIncomplete = true;
+                        break;
+                    }
+                }
+                if(realizationIsIncomplete){
+                    break;
+                }
+            }
+        }
+        return incompleteRealizations;
+    }
 }
