@@ -13,7 +13,9 @@ import hec.model.OutputVariable;
 import hec2.plugin.AbstractPlugin;
 import hec2.plugin.model.ModelAlternative;
 import hec2.wat.client.WatFrame;
+import hec2.wat.model.FailedModelComputeTracker;
 import hec2.wat.model.FrmSimulation;
+import hec2.wat.model.ModelComputeTracker;
 import hec2.wat.model.tracking.OutputTracker;
 import hec2.wat.model.tracking.OutputVariableImpl;
 import hec2.wat.plugin.SimpleWatPlugin;
@@ -100,7 +102,8 @@ public class DCInvestigatorPlugin extends AbstractPlugin implements SimpleWatPlu
         }else{
             return false;
         }
-        //process the bin sizes into weights. by dividing by total number of events per bin
+
+        /*//process the bin sizes into weights. by dividing by total number of events per bin
         //get the simulation 
         List<ManagerProxy> managerProxyListForType = proj.getManagerProxyListForType(FrmSimulation.class);
         Manager m = null;
@@ -118,6 +121,10 @@ public class DCInvestigatorPlugin extends AbstractPlugin implements SimpleWatPlu
                 
             }
         }
+
+        FailedModelComputeTracker fmct = new FailedModelComputeTracker(frm);
+        fmct.saveData();
+
         if(ot!=null){
             fr.addMessage("Output Tracker found");
             List<OutputVariable> outlist = fr.getOutputVariables(frm, true);
@@ -166,13 +173,14 @@ public class DCInvestigatorPlugin extends AbstractPlugin implements SimpleWatPlu
             }
             masterList.WriteReport(fr);
             masterList.WriteLifecycleReport(fr);
-        }else{
+        }
+        else{
             fr.addMessage("A WAT simulation named "+_settings.getSimulation()+" was not found, please check your simulation names, and fix the \\DCInvestigator\\DCInvestigator.props file to contain the name of the simulation you wish to destratify.");
             return false;
-        }
+        }*/
         return true;
     }
-    private ErrorReport checkValidityofOutputVariable(OutputVariableImpl vv, PairedDataContainer outPdc, FrmSimulation frm, int real, ModelAlternative modelAlt){
+  /*  private ErrorReport checkValidityofOutputVariable(OutputVariableImpl vv, PairedDataContainer outPdc, FrmSimulation frm, int real, ModelAlternative modelAlt){
         ErrorReport errors = new ErrorReport();
         int numlifecycles = frm.getNumberLifeCycles();
         int numreals = frm.getNumberRealizations();
@@ -215,7 +223,7 @@ public class DCInvestigatorPlugin extends AbstractPlugin implements SimpleWatPlu
             }
         }
         return errors;
-    }
+    }*/
     @Override
     public String getVersion() {
         return _pluginVersion;
