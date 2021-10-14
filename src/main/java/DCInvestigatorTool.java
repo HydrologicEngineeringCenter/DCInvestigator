@@ -101,7 +101,7 @@ public class DCInvestigatorTool {
         return badEvents;
 
     }
-    public static Vector<String> GetIncompleteCollections(String filePath, int lifecyclesPerReal){
+    public static Vector<String> GetIncompleteCollections(String filePath, int lifecyclesPerReal, int numMissingEvents){
         Vector<String> incompleteRealizations = new Vector<>();
         Vector<String> OutputVariablePathnames = GetOutputVariablePathnames(filePath);
         PairedDataContainer mypdc = new PairedDataContainer();
@@ -124,7 +124,7 @@ public class DCInvestigatorTool {
                     if(event < 0 ){
                         failedEventCount++;
                     }
-                    if (failedEventCount > 4){
+                    if (failedEventCount > numMissingEvents){
                         incompleteRealizations.add(pathname);
                         realizationIsIncomplete = true;
                         break;
@@ -140,9 +140,6 @@ public class DCInvestigatorTool {
     public static int GetNumberOfRealizations(String filePath){
         Set<Integer> reals = new HashSet<>();
         Vector<String> OutputVariablePathnames = GetOutputVariablePathnames(filePath);
-        PairedDataContainer mypdc = new PairedDataContainer();
-        HecPairedData pairedData = new HecPairedData();
-        pairedData.setDSSFileName(filePath);
 
         for(String pathname: OutputVariablePathnames){
             DSSPathname dssPathname = new DSSPathname(pathname);
