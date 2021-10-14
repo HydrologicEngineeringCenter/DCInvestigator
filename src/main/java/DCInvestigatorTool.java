@@ -137,4 +137,18 @@ public class DCInvestigatorTool {
         }
         return incompleteRealizations;
     }
+    public static int GetNumberOfRealizations(String filePath){
+        Set<Integer> reals = new HashSet<>();
+        Vector<String> OutputVariablePathnames = GetOutputVariablePathnames(filePath);
+        PairedDataContainer mypdc = new PairedDataContainer();
+        HecPairedData pairedData = new HecPairedData();
+        pairedData.setDSSFileName(filePath);
+
+        for(String pathname: OutputVariablePathnames){
+            DSSPathname dssPathname = new DSSPathname(pathname);
+            String collectionNum = dssPathname.getCollectionSequence();
+            reals.add(Integer.valueOf(collectionNum));
+        }
+        return reals.size();
+    }
 }
