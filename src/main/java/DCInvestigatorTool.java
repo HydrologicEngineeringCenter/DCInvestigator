@@ -9,9 +9,9 @@ import java.util.Vector;
 
 
 public class DCInvestigatorTool {
-    String _dssFilePath;
-    int _lifecyclesPerReal;
-    int _eventsPerLifecycle;
+    private String _dssFilePath;
+    private int _lifecyclesPerReal;
+    private int _eventsPerLifecycle;
 
     Set<FailedEvent> _failedEvents = new HashSet<>();
 
