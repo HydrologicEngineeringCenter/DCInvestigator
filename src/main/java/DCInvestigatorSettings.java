@@ -19,12 +19,14 @@ public class DCInvestigatorSettings {
     private String _SimulationName;//the simulation the user wishes to check on
     private int _lifecyclesPerRealization;
     private int _eventsPerLifecycle;
+    private String _outputFilePath;
 
-    public String getSimulation(){
+    public String GetSimulation(){
         return _SimulationName;
     }
     public int GetLifecyclesPerRealization() {return _lifecyclesPerRealization; }
     public int GetEventsPerLifecycle(){return _eventsPerLifecycle; }
+    public String GetOutputFilePath(){return _outputFilePath;}
 
 
 
@@ -49,6 +51,9 @@ public class DCInvestigatorSettings {
                     }
                     if(tmp[0].equals("EventsPerLifecycle")){
                         _eventsPerLifecycle = Integer.valueOf(tmp[1]);
+                    }
+                    if(tmp[0].equals("ReportOutputLocation")){
+                        _outputFilePath = tmp[1];
                     }
                 }
             } catch (FileNotFoundException e) {

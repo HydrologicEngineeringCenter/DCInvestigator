@@ -1,3 +1,4 @@
 SimulationName,Validation
 LifecyclesPerRealization,20
 EventsPerLifecycle,50
+ReportOutputLocation,C:\Temp\DCInvestigator.txt

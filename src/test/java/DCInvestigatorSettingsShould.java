@@ -9,7 +9,7 @@ class DCInvestigatorSettingsShould {
 
     @Test
     void returnSimulationName() {
-        String actual = settings.getSimulation();
+        String actual = settings.GetSimulation();
         assertEquals("Validation", actual);
     }
 
@@ -23,5 +23,11 @@ class DCInvestigatorSettingsShould {
     void returnEventsPerLifecycle() {
         int actual = settings.GetEventsPerLifecycle();
         assertEquals(50, actual);
+    }
+
+    @Test
+    void returnOutputFilePath() {
+        String actual = settings.GetOutputFilePath();
+        assertEquals("C:\\Temp\\DCInvestigator.txt", actual);
     }
 }
