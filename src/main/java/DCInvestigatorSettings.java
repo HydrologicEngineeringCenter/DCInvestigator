@@ -5,13 +5,11 @@
  */
 
 
-import hec2.wat.client.WatFrame;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 
 /**
  *
@@ -19,12 +17,14 @@ import java.util.ArrayList;
  */
 public class DCInvestigatorSettings {
     private String _SimulationName;//the simulation the user wishes to check on
-    private String _TotalRealizations;
+    private int _lifecyclesPerRealization;
+    private int _eventsPerLifecycle;
 
     public String getSimulation(){
         return _SimulationName;
     }
-    public String getTotalRealizations() {return _TotalRealizations; }
+    public int GetLifecyclesPerRealization() {return _lifecyclesPerRealization; }
+    public int GetEventsPerLifecycle(){return _eventsPerLifecycle; }
 
 
 
@@ -44,8 +44,11 @@ public class DCInvestigatorSettings {
                     if(tmp[0].equals("SimulationName")){
                         _SimulationName = tmp[1];
                     }
-                    if(tmp[0].equals("TotalRealizations")){
-                        _TotalRealizations = tmp[1];
+                    if(tmp[0].equals("LifecyclesPerRealization")){
+                        _lifecyclesPerRealization = Integer.valueOf(tmp[1]);
+                    }
+                    if(tmp[0].equals("EventsPerLifecycle")){
+                        _eventsPerLifecycle = Integer.valueOf(tmp[1]);
                     }
                 }
             } catch (FileNotFoundException e) {
