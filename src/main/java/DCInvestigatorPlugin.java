@@ -85,7 +85,7 @@ public class DCInvestigatorPlugin extends AbstractPlugin implements SimpleWatPlu
 
         ModelComputeTracker mct = new ModelComputeTracker(frm);
         DCInvestigatorTool detective = new DCInvestigatorTool(frm.getSimulationDssFile(),20,50);
-        for(FailedEvent fail: detective.get_failedEvents()){
+        for(FailedEvent fail: detective.GetFailedEvents()){
             mct.add("RAS", fail.getRealization(), fail.getLifecycle(), fail.getEvent(), frm.getRunTimeWindow(), false);
         }
         mct.saveData();
