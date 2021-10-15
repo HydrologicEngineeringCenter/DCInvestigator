@@ -1,7 +1,7 @@
 public class FailedEvent {
-    int Realization;
-    int Lifecycle;
-    int Event;
+    private int Realization;
+    private int Lifecycle;
+    private int Event;
 
     public FailedEvent(int realization, int lifecycle, int event) {
         Realization = realization;
