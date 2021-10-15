@@ -61,6 +61,22 @@ public class DCInvestigatorPlugin extends AbstractPlugin implements SimpleWatPlu
     public boolean saveProject() {return true;}
     @Override
     public String getLogfile() {return null;}
+    public boolean displayDCInvestigator() {
+        /*return displayApplication();*/
+        Thread thread = new Thread() {
+            public void run() {
+                System.out.println("Thread Running");
+                if (displayApplication()) {
+                    System.out.println("Complete");
+                }
+                else {
+                    System.out.println("Something Didn't Work");
+                }
+            }
+        };
+        thread.start();
+        return true;
+    }
     @Override
     public boolean displayApplication() {
         Project proj = Browser.getBrowserFrame().getCurrentProject();
@@ -75,8 +91,9 @@ public class DCInvestigatorPlugin extends AbstractPlugin implements SimpleWatPlu
         List<ManagerProxy> managerProxyListForType = proj.getManagerProxyListForType(FrmSimulation.class);
         Manager m = null;
         FrmSimulation frm = null;
+        WatFrame myWatFrame = hec2.wat.WAT.getWatFrame();
         for (ManagerProxy mp : managerProxyListForType) {
-            if (mp.getName().equals(_settings.getSimulation())) {
+            if (mp.getName().equals(_settings.GetSimulation())) {
                 m = mp.getManager();
                 frm = (FrmSimulation) m;//get the FRM simulation object
             }
@@ -84,10 +101,15 @@ public class DCInvestigatorPlugin extends AbstractPlugin implements SimpleWatPlu
 
         ModelComputeTracker mct = new ModelComputeTracker(frm);
         DCInvestigatorTool detective = new DCInvestigatorTool(frm.getSimulationDssFile(),_settings.GetLifecyclesPerRealization(), _settings.GetEventsPerLifecycle());
+        detective.WriteReport(_settings.GetOutputFilePath());
         for(FailedEvent fail: detective.GetFailedEvents()){
             mct.add("RAS", fail.getRealization(), fail.getLifecycle(), fail.getEvent(), frm.getRunTimeWindow(), false);
         }
         mct.saveData();
+
+        myWatFrame.addMessage("Event failures written to modelComputeStatus.xml. Restart WAT to view failed events in Simulation Failures");
+        myWatFrame.addMessage("DCInvestigatorReport written to: " + _settings.GetOutputFilePath());
+        myWatFrame.addMessage("Lifecycles with missing data: " + detective.GetBadLifecycles());
         return true;
     }
     @Override
