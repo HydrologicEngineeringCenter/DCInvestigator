@@ -41,8 +41,7 @@ public class DCInvestigatorPlugin extends AbstractPlugin implements SimpleWatPlu
         }
     }
 
-    protected void addToToolsToolbar()
-    {
+    protected void addToToolsToolbar() {
         Icon i = RmaImage.getImageIcon("Images/Workstation.gif");
         BrowserAction a = new BrowserAction("Fixer",i,this, "displayDCInvestigator");
         a.putValue(Action.SHORT_DESCRIPTION, getName());
@@ -84,7 +83,7 @@ public class DCInvestigatorPlugin extends AbstractPlugin implements SimpleWatPlu
         }
 
         ModelComputeTracker mct = new ModelComputeTracker(frm);
-        DCInvestigatorTool detective = new DCInvestigatorTool(frm.getSimulationDssFile(),20,50);
+        DCInvestigatorTool detective = new DCInvestigatorTool(frm.getSimulationDssFile(),_settings.GetLifecyclesPerRealization(), _settings.GetEventsPerLifecycle());
         for(FailedEvent fail: detective.GetFailedEvents()){
             mct.add("RAS", fail.getRealization(), fail.getLifecycle(), fail.getEvent(), frm.getRunTimeWindow(), false);
         }
