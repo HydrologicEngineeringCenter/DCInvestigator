@@ -51,8 +51,8 @@ public class DCInvestigatorToolShould {
     @AfterAll
     static void deleteReport(){
         File expected = new File(outputFilePathTxt);
-        File expected2 = new File(outputFilePathTxt);
+        File expected2 = new File(outputFilePathXml);
         expected.delete();
-        //expected2.delete();
+        expected2.delete();
     }
 }
