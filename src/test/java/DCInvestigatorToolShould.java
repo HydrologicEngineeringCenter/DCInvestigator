@@ -10,7 +10,8 @@ public class DCInvestigatorToolShould {
     String _filepath = currentDirectory + "\\Existing_Conditions-Trinity.dss";
     int _lifecyclesPerReal = 20;
     int _eventsPerLifecycle = 50;
-    static String outputFilePath = currentDirectory + "\\DCInvestigatorReport.txt";
+    static String outputFilePathTxt = currentDirectory + "\\DCInvestigatorReport.txt";
+    static String outputFilePathXml = currentDirectory + "\\DCInvestigatorReport.xml";
     static String referenceReport = currentDirectory + "\\references\\DCInvestigatorReport.txt";
 
     DCInvestigatorTool tool = new DCInvestigatorTool(_filepath,_lifecyclesPerReal,_eventsPerLifecycle);
@@ -35,15 +36,23 @@ public class DCInvestigatorToolShould {
     }
     @Test
     void writesCorrectReport(){
-        tool.WriteReport(outputFilePath);
+        tool.WriteReport(outputFilePathTxt);
         File expected = new File(referenceReport);
-        File actual = new File(outputFilePath);
+        File actual = new File(outputFilePathTxt);
         assertEquals(expected.getTotalSpace(), actual.getTotalSpace());
         assertEquals(expected.length(), expected.length());
     }
+    @Test
+    void writeSomethingToXML(){
+        tool.WriteToXML(outputFilePathXml);
+        File expected = new File(outputFilePathXml);
+        assertTrue(expected.exists());
+    }
     @AfterAll
     static void deleteReport(){
-        File expected = new File(outputFilePath);
+        File expected = new File(outputFilePathTxt);
+        File expected2 = new File(outputFilePathTxt);
         expected.delete();
+        //expected2.delete();
     }
 }
