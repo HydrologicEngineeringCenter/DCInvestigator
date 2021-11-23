@@ -2,14 +2,14 @@ import hec.heclib.dss.DSSPathname;
 import hec.heclib.dss.HecDataManager;
 import hec.heclib.dss.HecPairedData;
 import hec.io.PairedDataContainer;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.output.Format;
+import org.jdom2.output.XMLOutputter;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Vector;
-
+import java.util.*;
 
 public class DCInvestigatorTool {
 
@@ -24,7 +24,6 @@ public class DCInvestigatorTool {
         this._eventsPerLifecycle = _eventsPerLifecycle;
         Investigate();
     }
-
     public Set<FailedEvent> GetFailedEvents() {
         return _failedEvents;
     }
@@ -56,6 +55,7 @@ public class DCInvestigatorTool {
     }
     public void WriteReport(String outputFilePath) {
         int totalMissingEvents = 0;
+        Set<Integer> totalFailureLifecycles = new HashSet<>();
         try {
             FileWriter myWriter = new FileWriter(outputFilePath);
             //write all lifecycles with any missing data
@@ -68,9 +68,11 @@ public class DCInvestigatorTool {
             for (Integer eachLifecycle : GetBadLifecycles()) {
                 Set<Integer> failedEvents = GetBadEventsPerLifecycle(eachLifecycle);
                 totalMissingEvents += failedEvents.size();
+                if(failedEvents.size() == _eventsPerLifecycle){totalFailureLifecycles.add(eachLifecycle);}
                 myWriter.write((eachLifecycle) + ": " + failedEvents + "\n");
             }
             myWriter.write("Total Events Failed = " + totalMissingEvents + "\n\n");
+            myWriter.write("Completely Empty Lifecycles: " + totalFailureLifecycles);
             myWriter.close();
         } catch (IOException e) {
             System.out.println("An error occurred.");
@@ -134,4 +136,60 @@ public class DCInvestigatorTool {
         Vector<String> vector = new Vector<>(Arrays.asList(pathnames));
         return vector;
     }
+    public Vector<String> GetIncompleteCollections(){
+        Vector<String> incompleteRealizations = new Vector<>();
+        Vector<String> OutputVariablePathnames = GetOutputVariablePathnames();
+        PairedDataContainer mypdc = new PairedDataContainer();
+        HecPairedData pairedData = new HecPairedData();
+        pairedData.setDSSFileName(_dssFilePath);
+
+
+        for(String pathname: OutputVariablePathnames){
+            Boolean realizationIsIncomplete = false;
+            mypdc.setFullName(pathname);
+            pairedData.read(mypdc);
+            if(mypdc.getNumberCurves() != _lifecyclesPerReal){
+                incompleteRealizations.add(pathname);
+                continue;
+            }
+            double[][] yOrds = mypdc.getYOridnates();
+            for(double[] lifecycle: yOrds){
+                int failedEventCount = 0;
+                for(double event: lifecycle){
+                    if(event < 0 ){
+                        failedEventCount++;
+                    }
+                    if (failedEventCount > 0){
+                        incompleteRealizations.add(pathname);
+                        realizationIsIncomplete = true;
+                        break;
+                    }
+                }
+                if(realizationIsIncomplete){
+                    break;
+                }
+            }
+
+        }
+        return incompleteRealizations;
+    }
+    public void WriteToXML(String outputPath){
+        Document doc = new Document();
+        doc.setRootElement(new Element("FailedEvents"));
+
+        for(FailedEvent fail: _failedEvents){
+            Element myEvent = new Element("Event");
+            myEvent.addContent(new Element("Realization").setText(String.valueOf(fail.getRealization())));
+            myEvent.addContent(new Element("Lifecycle").setText(String.valueOf(fail.getLifecycle())));
+            myEvent.addContent(new Element("Event").setText(String.valueOf(fail.getEvent())));
+            doc.getRootElement().addContent(myEvent);
+        }
+        XMLOutputter xmlOutputter = new XMLOutputter();
+        xmlOutputter.setFormat(Format.getPrettyFormat());
+        try(FileWriter fileWriter = new FileWriter(outputPath)){
+        xmlOutputter.output(doc,fileWriter);
+        }
+        catch (Exception ex){System.out.print("failed to establish file writer");}
+    }
 }
+
