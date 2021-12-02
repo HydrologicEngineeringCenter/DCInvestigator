@@ -1,4 +1,5 @@
 import hec.heclib.dss.DSSPathname;
+import hec.heclib.dss.HecDSSUtilities;
 import hec.heclib.dss.HecDataManager;
 import hec.heclib.dss.HecPairedData;
 import hec.io.PairedDataContainer;
@@ -22,6 +23,7 @@ public class DCInvestigatorTool {
         this._dssFilePath = _dssFilePath;
         this._lifecyclesPerReal = _lifecyclesPerReal;
         this._eventsPerLifecycle = _eventsPerLifecycle;
+        DeleteEmptyCollections();
         Investigate();
     }
     public Set<FailedEvent> GetFailedEvents() {
@@ -190,6 +192,32 @@ public class DCInvestigatorTool {
         xmlOutputter.output(doc,fileWriter);
         }
         catch (Exception ex){System.out.print("failed to establish file writer");}
+    }
+    public Vector<String> GetEmptyCollections(){
+
+        Vector<String> OutputVariablePathnames = GetOutputVariablePathnames();
+        Vector<String> EmptyPathnames = new Vector<>();
+
+        //create the container
+        PairedDataContainer mypdc = new PairedDataContainer();
+        mypdc.fileName = _dssFilePath;
+        for (String pathname : OutputVariablePathnames) {
+            mypdc.setName(pathname);
+            HecPairedData pairedData = new HecPairedData();
+            pairedData.read(mypdc);
+            if(mypdc.getNumberCurves()==1 && mypdc.getXOridnates()[0]<0){
+                EmptyPathnames.add(pathname);
+            }
+            pairedData.close();
+        }
+        return EmptyPathnames;
+    }
+    private void DeleteEmptyCollections(){
+        HecDSSUtilities utils = new HecDSSUtilities();
+        utils.setDSSFileName(_dssFilePath);
+        Vector<String> emptyPaths = GetEmptyCollections();
+        utils.delete(emptyPaths);
+        HecDataManager.closeAllFiles();
     }
 }
 
